@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospital · Bloco Operatório</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f1a;--surface:#131927;--card:#1a2235;--border:#243047;--border2:#1e2d42;
+  --txt:#f1f5fb;--txt2:#8da0bc;--txt3:#4f6175;
+  --green:#34d399;--green-bg:#0a2e22;--green-bd:#1a5240;
+  --teal:#2dd4bf;--teal-bg:#0a2b2a;--teal-bd:#1a4a48;
+  --orange:#fb923c;--orange-bg:#2d1800;--orange-bd:#5a3010;
+  --red:#f87171;--red-bg:#2d0f0f;--red-bd:#5a2020;
+  --yellow:#fbbf24;--yellow-bg:#2d1f00;--yellow-bd:#5a3e00;
+  --purple:#c084fc;--purple-bg:#1f0a2d;--purple-bd:#3d1a5a;
+  --blue:#60a5fa;--blue-bg:#0f1e35;--blue-bd:#1e3a5a;
+  --cyan:#38bdf8;--cyan-bg:#0a2030;--cyan-bd:#1a4060;
+  --pink:#f472b6;--pink-bg:#2d0f20;--pink-bd:#5a1a3a;
+  --font:'DM Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--font);min-height:100vh;font-size:14px}
+.screen{display:none;animation:fadeIn .2s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* DASHBOARD */
+.dash{padding:14px;max-width:1280px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:12px;padding:12px 18px;margin-bottom:12px;border:1px solid var(--border)}
+.topbar-left .hosp{font-size:13px;font-weight:500;color:var(--txt2)}
+.topbar-left .dt{font-size:11px;color:var(--txt3);margin-top:2px}
+.clk{font-family:var(--mono);font-size:28px;font-weight:700;color:#fff;letter-spacing:.04em}
+.badges{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px}
+.badge.red{background:#3f0f0f;color:#fca5a5;border:1px solid #7f1d1d}
+.badge.amber{background:#3f2700;color:#fde68a;border:1px solid #78350f}
+.badge.pink{background:#2d0a35;color:#f0abfc;border:1px solid #701a75}
+.badge.green{background:#0a2510;color:#86efac;border:1px solid #14532d}
+.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}
+.kp{border-radius:12px;padding:12px 15px;border:1.5px solid transparent}
+.kp .kl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.kp .kv{font-size:26px;font-weight:800;line-height:1;font-family:var(--mono)}
+.kp .kv span{font-size:14px;opacity:.55;font-weight:600}
+.kp .ks{font-size:10px;font-weight:600;margin-top:4px}
+.kp.g{background:var(--green-bg);border-color:var(--green-bd)}.kp.g .kl{color:var(--green)}.kp.g .kv{color:#f0fdf4}.kp.g .ks{color:var(--green)}
+.kp.b{background:var(--blue-bg);border-color:var(--blue-bd)}.kp.b .kl{color:var(--blue)}.kp.b .kv{color:#eff6ff}.kp.b .ks{color:var(--blue)}
+.kp.a{background:var(--yellow-bg);border-color:var(--yellow-bd)}.kp.a .kl{color:var(--yellow)}.kp.a .kv{color:#fffbeb}.kp.a .ks{color:var(--yellow)}
+.kp.r{background:var(--red-bg);border-color:var(--red-bd)}.kp.r .kl{color:var(--red)}.kp.r .kv{color:#fff1f2}.kp.r .ks{color:var(--red)}
+.kp.p{background:var(--purple-bg);border-color:var(--purple-bd)}.kp.p .kl{color:var(--purple)}.kp.p .kv{color:#faf5ff}.kp.p .ks{color:var(--purple)}
+.notify{background:linear-gradient(90deg,#2d0a35,#1f0a2d);border:1.5px solid #701a75;border-radius:12px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.notify .nt{font-size:13px;font-weight:700;color:#fdf4ff}
+.notify .ns{font-size:11px;color:#f0abfc;margin-top:2px}
+.notify-btn{font-size:11px;color:#fff;font-weight:700;background:#7e22ce;padding:6px 14px;border-radius:999px;cursor:pointer;border:none;white-space:nowrap;transition:background .15s}
+.notify-btn:hover{background:#9333ea}
+.mg{display:grid;grid-template-columns:1fr 250px;gap:12px}
+.blabel{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px}
+.bg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.bk{border-radius:12px;padding:12px 13px;border:2px solid transparent;cursor:pointer;transition:filter .15s,transform .1s}
+.bk:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.bk .bn{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.bk .bs{font-size:13px;font-weight:700;margin-bottom:2px}
+.bk .bd{font-size:10px;font-weight:600;margin-bottom:8px}
+.bk .bpw{height:3px;border-radius:999px;background:rgba(255,255,255,.12)}
+.bk .bp{height:3px;border-radius:999px;transition:width .3s}
+.bk.ci{background:var(--green-bg);border-color:var(--green-bd)}.bk.ci .bn{color:var(--green)}.bk.ci .bs{color:#f0fdf4}.bk.ci .bd{color:var(--green)}.bk.ci .bp{background:var(--green)}
+.bk.su{background:var(--teal-bg);border-color:var(--teal-bd)}.bk.su .bn{color:var(--teal)}.bk.su .bs{color:#f0fdfa}.bk.su .bd{color:var(--teal)}.bk.su .bp{background:var(--teal)}
+.bk.re{background:var(--orange-bg);border-color:var(--orange-bd)}.bk.re .bn{color:var(--orange)}.bk.re .bs{color:#fff7ed}.bk.re .bd{color:var(--orange)}.bk.re .bp{background:var(--orange);width:100%}
+.bk.li{background:var(--red-bg);border-color:var(--red-bd)}.bk.li .bn{color:var(--red)}.bk.li .bs{color:#fff1f2}.bk.li .bd{color:var(--red)}
+.bk.ls{background:var(--yellow-bg);border-color:var(--yellow-bd)}.bk.ls .bn{color:var(--yellow)}.bk.ls .bs{color:#fffbeb}.bk.ls .bd{color:var(--yellow)}
+.bk.ma{background:var(--purple-bg);border-color:var(--purple-bd)}.bk.ma .bn{color:var(--purple)}.bk.ma .bs{color:#faf5ff}.bk.ma .bd{color:var(--purple)}.bk.ma .bp{background:var(--purple);width:100%}
+.bk.at{background:var(--cyan-bg);border-color:var(--cyan-bd)}.bk.at .bn{color:var(--cyan)}.bk.at .bs{color:#f0f9ff}.bk.at .bd{color:var(--cyan)}.bk.at .bp{background:var(--cyan);width:100%}
+.bk.dp{background:var(--pink-bg);border-color:var(--pink-bd)}.bk.dp .bn{color:var(--pink)}.bk.dp .bs{color:#fdf4ff}.bk.dp .bd{color:var(--pink)}.bk.dp .bp{background:var(--pink);width:100%}
+.bk.lv{background:#1a2235;border-color:#2a3a55;opacity:.6}.bk.lv .bn{color:#8da0bc}.bk.lv .bs{color:#c0d0e0}.bk.lv .bd{color:#6a80a0}
+.lg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:12px}
+.lr{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600}
+.ld{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.sb{display:flex;flex-direction:column;gap:9px}
+.sc{background:var(--surface);border-radius:12px;padding:12px 14px;border:1px solid var(--border)}
+.st{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:10px}
+.rg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:9px}
+.rs{border-radius:6px;padding:5px 3px;text-align:center;border:2px solid transparent;cursor:pointer;transition:filter .15s}
+.rs:hover{filter:brightness(1.15)}
+.rs .rn{font-size:10px;font-weight:700}
+.rs .rl{font-size:8px;font-weight:600}
+.rs.oc{background:var(--blue-bg);border-color:#1e3a5a}.rs.oc .rn{color:#bfdbfe}.rs.oc .rl{color:#93c5fd}
+.rs.fr{background:var(--green-bg);border-color:#1a5240}.rs.fr .rn{color:#bbf7d0}.rs.fr .rl{color:#86efac}
+.rs.al{background:var(--yellow-bg);border-color:#5a3e00}.rs.al .rn{color:#fef3c7}.rs.al .rl{color:#fde68a}
+.er{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border2);font-size:11px}
+.er:last-child{border-bottom:none}
+.el{color:var(--txt2);font-weight:600}
+.ev{font-weight:700}
+.ev.ok{color:var(--green)}.ev.w{color:var(--yellow)}.ev.c{color:var(--red)}.ev.b{color:var(--blue)}.ev.pi{color:var(--pink)}
+.pw{height:4px;background:#0d1520;border-radius:999px;overflow:hidden;margin-bottom:8px}
+.pf{height:4px;border-radius:999px}
+.nc{border-radius:8px;padding:7px 10px;border:1.5px solid var(--teal-bd);background:var(--teal-bg);margin-bottom:5px;cursor:pointer}
+.nc:last-child{margin-bottom:0}
+.nc .nct{font-size:11px;font-weight:700;color:#f0fdfa}
+.nc .ncs{font-size:10px;font-weight:600;color:var(--teal);margin-top:1px}
+.navtabs{display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.ntab{flex:1;text-align:center;padding:9px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);color:var(--txt2);background:var(--surface);transition:all .15s;text-transform:uppercase;letter-spacing:.05em}
+.ntab:hover,.ntab.act{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue)}
+
+/* DETAIL SCREENS */
+.det{background:#f4f6f9;min-height:100vh}
+.det-top{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.back{font-size:12px;color:#0891b2;font-weight:700;cursor:pointer}
+.back:hover{color:#0e7490}
+.det-title{font-size:18px;font-weight:800;color:#0f172a}
+.tag{font-size:11px;font-weight:800;padding:5px 14px;border-radius:999px;color:#fff}
+.tag.teal{background:#0d9488}
+.tag.purple{background:#7c3aed}
+.tag.orange{background:#ea580c}
+.tag.green{background:#15803d}
+.det-body{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px}
+.det-card{background:#fff;border-radius:12px;padding:16px;border:1px solid #e2e8f0;margin-bottom:12px}
+.det-card:last-child{margin-bottom:0}
+.det-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:12px}
+.det-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.det-row:last-child{border-bottom:none}
+.det-row .dr-l{color:#64748b;font-weight:500}
+.det-row .dr-v{font-weight:700;color:#0f172a}
+.dr-v.teal{color:#0d9488}
+.dr-v.orange{color:#ea580c}
+.dr-v.purple{color:#7c3aed}
+.dr-v.green{color:#15803d}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sbtn{padding:10px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#475569;cursor:pointer;text-align:center;transition:all .15s}
+.sbtn:hover{border-color:#94a3b8;color:#334155}
+.sbtn.act-teal{background:#0d9488;border-color:#0d9488;color:#fff}
+.sbtn.act-purple{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.sbtn.act-orange{background:#ea580c;border-color:#ea580c;color:#fff}
+.sbtn.act-green{background:#15803d;border-color:#15803d;color:#fff}
+.sbtn.act-red{background:#dc2626;border-color:#dc2626;color:#fff}
+.sbtn.act-yellow{background:#d97706;border-color:#d97706;color:#fff}
+.sbtn.full{grid-column:1/-1}
+.confirm-btn{width:100%;padding:13px;border-radius:10px;border:2px solid #e2e8f0;background:#fff;font-size:15px;font-weight:700;color:#0f172a;cursor:pointer;margin-top:10px;transition:all .15s}
+.confirm-btn:hover{background:#f1f5f9}
+.info-box{border-radius:10px;padding:12px 14px;font-size:12px;font-weight:600;line-height:1.5;margin-bottom:12px}
+.info-box.teal{background:#f0fdfa;border:1.5px solid #99f6e4;color:#0f766e}
+.info-box.purple{background:#faf5ff;border:1.5px solid #d8b4fe;color:#6d28d9}
+.info-box.orange{background:#fff7ed;border:1.5px solid #fed7aa;color:#c2410c}
+.info-box.green{background:#f0fdf4;border:1.5px solid #bbf7d0;color:#15803d}
+/* Checklist */
+.ck-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;border:1px solid #d1fae5;background:#f0fdf4;margin-bottom:6px}
+.ck-item .ck-text{font-size:13px;font-weight:600;color:#065f46;display:flex;align-items:center;gap:8px}
+.ck-item .ck-tick{color:#10b981;font-size:14px;font-weight:800}
+.ck-item .ck-time{font-size:11px;font-weight:700;color:#6ee7b7;font-family:var(--mono)}
+.call-btn{width:100%;padding:14px;border-radius:10px;background:#059669;border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;transition:background .15s}
+.call-btn:hover{background:#047857}
+/* Subcategory */
+.sub-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sub-btn{padding:11px 10px;border-radius:8px;border:2px solid #0e7490;background:#0e7490;color:#fff;font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s}
+.sub-btn:hover{background:#0891b2}
+.sub-btn.act{background:#0c4a6e;border-color:#0c4a6e;box-shadow:0 0 0 3px rgba(14,116,144,.3)}
+.sub-btn.full{grid-column:1/-1}
+.sub-list{list-style:none}
+.sub-list li{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.sub-list li:last-child{border-bottom:none}
+.sub-list .sn{font-weight:700;color:#0f172a;margin-right:8px}
+.sub-list .sd{color:#64748b;font-size:12px}
+/* Kit request */
+.kit-req-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.kit-req-btn{padding:9px 8px;border-radius:8px;border:2px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#475569;cursor:pointer;text-align:center;transition:all .15s}
+.kit-req-btn:hover{border-color:#7c3aed;color:#7c3aed}
+.kit-req-btn.sel{background:#7c3aed;border-color:#7c3aed;color:#fff}
+
+/* RECOVERY ROOM */
+.rec-top{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.rec-badges{display:flex;gap:7px;flex-wrap:wrap}
+.rec-badge{font-size:11px;font-weight:700;padding:5px 13px;border-radius:999px}
+.rec-badge.red{background:#fee2e2;color:#991b1b}
+.rec-badge.green{background:#dcfce7;color:#14532d}
+.rec-badge.amber{background:#fef3c7;color:#78350f}
+.rec-body{padding:16px 20px;max-width:1060px}
+.rec-alert{background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;color:#1d4ed8}
+.rec-layout{display:grid;grid-template-columns:1fr 300px;gap:16px}
+.bed-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.bed{border-radius:10px;padding:11px 12px;border:2px solid transparent;cursor:pointer;transition:all .15s}
+.bed:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.bed .bn{font-size:10px;font-weight:700;color:#64748b;margin-bottom:4px}
+.bed .bs{font-size:14px;font-weight:800;margin-bottom:2px}
+.bed .bd{font-size:10px;font-weight:600;margin-bottom:1px}
+.bed .be{font-size:10px;font-weight:600}
+.bed.occ{background:#fff;border-color:#e2e8f0}.bed.occ .bs{color:#dc2626}.bed.occ .bd,.bed.occ .be{color:#94a3b8}
+.bed.free{background:#f0fdf4;border-color:#bbf7d0}.bed.free .bs{color:#15803d}.bed.free .bd,.bed.free .be{color:#86efac}
+.bed.pend{background:#fffbeb;border-color:#fde68a}.bed.pend .bs{color:#b45309}.bed.pend .bd,.bed.pend .be{color:#d97706}
+.bed.sel{box-shadow:0 0 0 3px #3b82f6;transform:translateY(-1px)}
+.rec-detail{background:#fff;border-radius:12px;padding:16px;border:1px solid #e2e8f0}
+.rec-detail-title{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.rec-act-btn{width:100%;padding:12px;border-radius:9px;border:2px solid #e2e8f0;background:#fff;font-size:14px;font-weight:700;color:#0f172a;cursor:pointer;margin-bottom:8px;transition:all .15s}
+.rec-act-btn:hover{background:#f1f5f9}
+.rec-act-btn.primary{background:#0f172a;color:#fff;border-color:#0f172a}
+.rec-act-btn.primary:hover{background:#1e293b}
+.rec-act-btn.green{background:#15803d;color:#fff;border-color:#15803d}
+.rec-act-btn.green:hover{background:#166534}
+.rec-act-btn.amber{background:#d97706;color:#fff;border-color:#d97706}
+.rec-act-btn.amber:hover{background:#b45309}
+.wait-card{background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:12px 14px;margin-top:14px}
+.wait-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#78350f;margin-bottom:7px}
+.wait-item{padding:8px 10px;background:#fef9c3;border-radius:6px;margin-bottom:5px}
+.wait-item:last-child{margin-bottom:0}
+.wait-item .wi-bo{font-size:12px;font-weight:800;color:#713f12}
+.wait-item .wi-d{font-size:11px;font-weight:600;color:#92400e}
+/* Admit form */
+.admit-form{margin-top:10px}
+.form-group{margin-bottom:10px}
+.form-label{font-size:11px;font-weight:700;color:#475569;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.form-input,.form-select{width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;font-family:var(--font);color:#0f172a;background:#fff;outline:none;transition:border .15s}
+.form-input:focus,.form-select:focus{border-color:#3b82f6}
+
+/* MATERIAL */
+.mat-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1000px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;text-align:left;padding:6px 4px;border-bottom:2px solid #e2e8f0}
+td{font-size:13px;padding:8px 4px;border-bottom:1px solid #f1f5f9;color:#0f172a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.kit-bar{height:7px;border-radius:999px;background:#f1f5f9;margin-top:3px;overflow:hidden;width:70px}
+.kit-fill{height:7px;border-radius:999px;display:block}
+.kit-fill.ok{background:#22c55e}
+.kit-fill.low{background:#f59e0b}
+.kit-fill.crit{background:#ef4444}
+.urg-item{padding:10px 12px;border-radius:8px;margin-bottom:8px;border:1.5px solid}
+.urg-item:last-child{margin-bottom:0}
+.urg-item.urg{background:#fff1f2;border-color:#fca5a5}
+.urg-item.alert{background:#fffbeb;border-color:#fde68a}
+.urg-item .ui-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.urg-item .ui-name{font-size:13px;font-weight:700;color:#0f172a}
+.urg-item .ui-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px}
+.urg-item.urg .ui-tag{background:#fee2e2;color:#991b1b}
+.urg-item.alert .ui-tag{background:#fef3c7;color:#78350f}
+.urg-item .ui-sub{font-size:11px;color:#64748b;font-weight:600}
+.steril-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.steril-row:last-child{border-bottom:none}
+.steril-row .sl{color:#64748b;font-weight:500}
+.steril-row .sv{font-weight:700;color:#0f172a}
+.in-use-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#eff6ff;color:#1d4ed8}
+/* Kit management */
+.kit-manage-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9;gap:8px}
+.kit-manage-row:last-child{border-bottom:none}
+.kit-manage-info{flex:1}
+.kit-manage-name{font-size:13px;font-weight:700;color:#0f172a}
+.kit-manage-sub{font-size:11px;color:#64748b;margin-top:1px}
+.kit-btn-sm{font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;border:1.5px solid;cursor:pointer;white-space:nowrap;transition:all .15s}
+.kit-btn-sm.ready{border-color:#15803d;color:#15803d;background:#f0fdf4}
+.kit-btn-sm.ready:hover{background:#dcfce7}
+.kit-btn-sm.sent{border-color:#1d4ed8;color:#1d4ed8;background:#eff6ff}
+.kit-btn-sm.sent:hover{background:#dbeafe}
+.kit-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px}
+.kit-tag.ready{background:#dcfce7;color:#14532d}
+.kit-tag.steril{background:#eff6ff;color:#1d4ed8}
+.kit-tag.uso{background:#fef3c7;color:#78350f}
+
+/* ANALYSIS */
+.ana-body{padding:16px 20px;max-width:1000px}
+.time-filter{display:flex;gap:6px;align-items:center}
+.tf{font-size:12px;font-weight:700;padding:5px 13px;border-radius:999px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all .15s}
+.tf.act{background:#0f172a;color:#fff;border-color:#0f172a}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border-radius:12px;padding:16px;border:1px solid #e2e8f0;overflow:hidden}
+.kpi .kpi-l{font-size:11px;font-weight:600;color:#64748b;margin-bottom:6px}
+.kpi .kpi-v{font-size:32px;font-weight:800;line-height:1.1;font-family:var(--mono);display:block}
+.kpi .kpi-s{font-size:11px;color:#94a3b8;margin-top:4px}
+.ana-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ana-card{background:#fff;border-radius:12px;padding:16px;border:1px solid #e2e8f0}
+.ana-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:14px}
+/* Bar chart fixed */
+.bar-chart-wrap{display:flex;align-items:flex-end;gap:10px;height:130px;padding:0;position:relative}
+.bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%}
+.bar-col .bf{border-radius:4px 4px 0 0;width:100%;min-width:20px;margin-top:auto}
+.bar-col .bv{font-size:12px;font-weight:700;color:#374151;margin-bottom:4px;text-align:center}
+.bar-col .bl{font-size:9px;color:#94a3b8;font-weight:600;text-align:center;margin-top:4px;line-height:1.2}
+/* Phase bars */
+.phase-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12px}
+.phase-row:last-child{margin-bottom:0}
+.phase-row .pl{flex:0 0 150px;color:#64748b;font-weight:500;font-size:11px}
+.phase-row .pb{flex:1;height:8px;background:#f1f5f9;border-radius:999px;overflow:hidden}
+.phase-row .pf2{height:8px;border-radius:999px;display:block}
+.phase-row .pv{flex:0 0 38px;text-align:right;font-weight:700;color:#0f172a}
+/* Cancel table */
+.cancel-table{width:100%}
+.cancel-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;padding:4px}
+.cancel-table td{font-size:12px;padding:8px 4px;border-bottom:1px solid #f1f5f9}
+.cancel-table tr:last-child td{border-bottom:none}
+.impact{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+.impact.high{background:#fee2e2;color:#991b1b}
+.impact.med{background:#fef3c7;color:#78350f}
+.impact.ext{background:#f1f5f9;color:#475569}
+/* Occupancy chart */
+.occ-wrap{display:flex;align-items:flex-end;gap:5px;height:90px;margin-top:8px}
+.occ-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
+.occ-bar{border-radius:3px 3px 0 0;width:100%;display:block}
+.occ-lbl{font-size:9px;color:#94a3b8;font-weight:600;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="scr-dashboard" class="screen active">
+<div class="dash">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="hosp">Hospital · Bloco Operatório</div>
+      <div class="dt" id="dash-date">Sábado, 22 de março de 2026</div>
+    </div>
+    <div class="clk" id="clk">--:--</div>
+    <div class="badges">
+      <span class="badge red">2 bloqueados</span>
+      <span class="badge amber">1 imprevisto</span>
+      <span class="badge pink">1 doente pronto</span>
+      <span class="badge green" id="dash-rec-badge">Recobro: 4 livres</span>
+    </div>
+  </div>
+  <div class="notify">
+    <div>
+      <div class="nt">BO 7 · Doente pronto para entrar</div>
+      <div class="ns">CIR-2026-0855 · Todas as etapas pré-cirúrgicas concluídas · Aguarda chamada</div>
+    </div>
+    <button class="notify-btn" onclick="navigate('bo7')">Chamar para bloco</button>
+  </div>
+  <div class="krow">
+    <div class="kp g"><div class="kl">Blocos ativos</div><div class="kv">8<span>/11</span></div><div class="ks">3 pausados</div></div>
+    <div class="kp b"><div class="kl">Recobro</div><div class="kv" id="dash-rec-kv">12<span>/16</span></div><div class="ks" id="dash-rec-ks">4 livres · 2 alta pend.</div></div>
+    <div class="kp g"><div class="kl">Cirurgias hoje</div><div class="kv">14<span>/22</span></div><div class="ks">63% concluídas</div></div>
+    <div class="kp a"><div class="kl">Atrasos ativos</div><div class="kv">3</div><div class="ks">Recobro · Material · Imprev.</div></div>
+    <div class="kp r"><div class="kl">Em risco hoje</div><div class="kv">4</div><div class="ks">Cirurgias c/ atraso previsto</div></div>
+  </div>
+  <div class="mg">
+    <div>
+      <div class="blabel">11 blocos — estado em tempo real</div>
+      <div class="bg" id="dash-bo-grid"></div>
+      <div class="lg">
+        <div class="lr"><div class="ld" style="background:#34d399"></div><span style="color:#6ee7b7">Em cirurgia</span></div>
+        <div class="lr"><div class="ld" style="background:#2dd4bf"></div><span style="color:#5eead4">Em sutura / encerramento</span></div>
+        <div class="lr"><div class="ld" style="background:#f472b6"></div><span style="color:#f9a8d4">Doente pronto</span></div>
+        <div class="lr"><div class="ld" style="background:#fb923c"></div><span style="color:#fdba74">Aguarda recobro</span></div>
+        <div class="lr"><div class="ld" style="background:#f87171"></div><span style="color:#fca5a5">Limpeza infeciosa</span></div>
+        <div class="lr"><div class="ld" style="background:#fbbf24"></div><span style="color:#fde68a">Limpeza standard</span></div>
+        <div class="lr"><div class="ld" style="background:#c084fc"></div><span style="color:#e9d5ff">Aguarda material</span></div>
+        <div class="lr"><div class="ld" style="background:#38bdf8"></div><span style="color:#7dd3fc">Atraso não previsto</span></div>
+        <div class="lr"><div class="ld" style="background:#4f6175"></div><span style="color:#8da0bc">Livre / encerrado</span></div>
+      </div>
+    </div>
+    <div class="sb">
+      <div class="sc">
+        <div class="st">Recobro · 16 lugares</div>
+        <div class="rg" id="dash-rec-grid"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="lr"><div class="ld" style="background:#60a5fa;border-radius:50%"></div><span style="color:#bfdbfe;font-size:10px" id="dash-occ-lbl">Ocup. (10)</span></div>
+          <div class="lr"><div class="ld" style="background:#34d399;border-radius:50%"></div><span style="color:#6ee7b7;font-size:10px" id="dash-free-lbl">Livre (4)</span></div>
+          <div class="lr"><div class="ld" style="background:#fbbf24;border-radius:50%"></div><span style="color:#fef3c7;font-size:10px" id="dash-pend-lbl">Alta p. (2)</span></div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="st">Próximas entradas</div>
+        <div class="nc" onclick="navigate('bo-detail',{bo:2})"><div class="nct">CIR-0862 · BO 2</div><div class="ncs">Em sutura · bloco livre em ~10 min</div></div>
+        <div class="nc" onclick="navigate('bo-detail',{bo:11})"><div class="nct">CIR-0869 · BO 11</div><div class="ncs">Em sutura · a preparar doente</div></div>
+      </div>
+      <div class="sc">
+        <div class="st">Progresso do dia</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><span style="color:var(--txt2);font-weight:600">Cirurgias</span><span style="color:var(--green);font-weight:700">14 / 22</span></div>
+        <div class="pw"><div class="pf" style="width:63%;background:var(--green)"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><span style="color:var(--txt2);font-weight:600">Utilização blocos</span><span style="color:var(--yellow);font-weight:700">73%</span></div>
+        <div class="pw"><div class="pf" style="width:73%;background:var(--yellow)"></div></div>
+      </div>
+      <div class="sc">
+        <div class="st">Eficiência · hoje</div>
+        <div class="er"><span class="el">Limpeza std.</span><span class="ev w">17 min <span style="font-size:9px;color:#fca5a5;font-weight:700">↑ meta</span></span></div>
+        <div class="er"><span class="el">Limpeza infec.</span><span class="ev c">48 min <span style="font-size:9px;color:#fca5a5;font-weight:700">↑ meta</span></span></div>
+        <div class="er"><span class="el">Fim cir. → recobro</span><span class="ev c">14 min <span style="font-size:9px;color:#fca5a5;font-weight:700">↑ meta</span></span></div>
+        <div class="er"><span class="el">Atrasos imprevistos</span><span class="ev b">1 ativo</span></div>
+        <div class="er"><span class="el">Doentes prontos</span><span class="ev pi">1 aguarda</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="navtabs">
+    <div class="ntab act" onclick="navigate('dashboard')">🏠 Dashboard</div>
+    <div class="ntab" onclick="navigate('recovery')">🛏 Recobro</div>
+    <div class="ntab" onclick="navigate('material')">📦 Material</div>
+    <div class="ntab" onclick="navigate('analysis')">📊 Análise</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ BO DETAIL ═══ -->
+<div id="scr-bo-detail" class="screen">
+<div class="det">
+  <div class="det-top">
+    <div class="back" onclick="navigate('dashboard')">← Dashboard</div>
+    <div class="det-title" id="bo-title">Bloco Operatório 2 · Laparoscopia</div>
+    <div class="tag teal" id="bo-tag">Em sutura</div>
+  </div>
+  <div style="padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px">
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Cirurgia atual</div>
+        <div class="det-row"><span class="dr-l">Código</span><span class="dr-v" id="bo-cod">CIR-2026-0848</span></div>
+        <div class="det-row"><span class="dr-l">Início real</span><span class="dr-v" id="bo-inicio">11:00</span></div>
+        <div class="det-row"><span class="dr-l">Fase</span><span class="dr-v teal" id="bo-fase">Em sutura / encerramento</span></div>
+        <div class="det-row"><span class="dr-l">Prev. conclusão</span><span class="dr-v" id="bo-prev">~13:55</span></div>
+        <div class="det-row"><span class="dr-l">Próxima cirurgia</span><span class="dr-v" id="bo-next-cir">CIR-2026-0862</span></div>
+        <div class="det-row"><span class="dr-l">Próximo doente</span><span class="dr-v orange" id="bo-next-pt">Pronto · aguarda chamada</span></div>
+      </div>
+      <div class="info-box teal" id="bo-info">Ao marcar <strong>Em sutura</strong>, o sistema notifica automaticamente a equipa de enfermagem.</div>
+      <!-- Kit Request Section -->
+      <div class="det-card">
+        <div class="det-card-title">Pedir kit de material</div>
+        <div class="kit-req-grid" id="kit-req-grid">
+          <div class="kit-req-btn" onclick="toggleKitReq(this,'Laparoscopia')">Laparoscopia</div>
+          <div class="kit-req-btn" onclick="toggleKitReq(this,'Ortopedia')">Ortopedia</div>
+          <div class="kit-req-btn" onclick="toggleKitReq(this,'Geral')">Geral</div>
+          <div class="kit-req-btn" onclick="toggleKitReq(this,'Cardiotorácico')">Cardiotorácico</div>
+          <div class="kit-req-btn" onclick="toggleKitReq(this,'Vascular')">Vascular</div>
+          <div class="kit-req-btn" onclick="toggleKitReq(this,'Neurocirurgia')">Neurocirurgia</div>
+        </div>
+        <div id="kit-urgency" style="display:none;margin-bottom:10px">
+          <label class="form-label">Urgência</label>
+          <div style="display:flex;gap:8px">
+            <div class="sbtn" style="flex:1;padding:8px" onclick="selectUrgency(this,'Normal')">Normal</div>
+            <div class="sbtn act-orange" style="flex:1;padding:8px" onclick="selectUrgency(this,'Urgente')">Urgente</div>
+          </div>
+        </div>
+        <button class="confirm-btn" id="kit-req-btn" onclick="sendKitRequest()" style="margin-top:6px">Enviar pedido</button>
+        <div id="kit-req-confirm" style="display:none;margin-top:8px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;padding:10px;font-size:12px;font-weight:600;color:#15803d"></div>
+      </div>
+    </div>
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Atualizar estado</div>
+        <div class="status-grid" id="status-grid">
+          <div class="sbtn" data-key="ci" onclick="selectStatus(this)">Em cirurgia</div>
+          <div class="sbtn" data-key="su" onclick="selectStatus(this)">Em sutura / encerramento</div>
+          <div class="sbtn" data-key="re" onclick="selectStatus(this)">Aguarda recobro</div>
+          <div class="sbtn" data-key="li" onclick="selectStatus(this)">Limpeza infeciosa</div>
+          <div class="sbtn" data-key="ls" onclick="selectStatus(this)">Limpeza standard</div>
+          <div class="sbtn" data-key="ma" onclick="selectStatus(this)">Aguarda material</div>
+          <div class="sbtn full" data-key="lv" onclick="selectStatus(this)">✓ Bloco livre / pronto</div>
+          <div class="sbtn full" data-key="at" onclick="navigate('subcategory')">Atraso não previsto</div>
+        </div>
+        <button class="confirm-btn" id="bo-confirm-btn" onclick="confirmStatus()">Confirmar estado</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ BO7 CHECKLIST ═══ -->
+<div id="scr-bo7" class="screen">
+<div class="det">
+  <div class="det-top">
+    <div class="back" onclick="navigate('dashboard')">← Dashboard</div>
+    <div class="det-title">Bloco Operatório 7 · Ortopedia</div>
+    <div class="tag purple">Doente pronto</div>
+  </div>
+  <div style="padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px">
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Checklist pré-cirúrgica — CIR-2026-0855</div>
+        <div class="ck-item"><span class="ck-text"><span class="ck-tick">✓</span> Consentimento informado assinado</span><span class="ck-time">09:15</span></div>
+        <div class="ck-item"><span class="ck-text"><span class="ck-tick">✓</span> Avaliação anestésica concluída</span><span class="ck-time">10:30</span></div>
+        <div class="ck-item"><span class="ck-text"><span class="ck-tick">✓</span> Tricotomia e preparação cutânea</span><span class="ck-time">12:45</span></div>
+        <div class="ck-item"><span class="ck-text"><span class="ck-tick">✓</span> Acesso venoso e pré-medicação</span><span class="ck-time">13:20</span></div>
+        <div class="ck-item"><span class="ck-text"><span class="ck-tick">✓</span> Identificação do doente verificada</span><span class="ck-time">13:35</span></div>
+        <div class="ck-item"><span class="ck-text"><span class="ck-tick">✓</span> Material cirúrgico confirmado</span><span class="ck-time">13:40</span></div>
+      </div>
+      <div class="info-box purple">Todas as etapas concluídas às 13:40. O doente está na zona de espera pré-operatória e pode ser chamado para BO 7 imediatamente.</div>
+    </div>
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Atualizar estado</div>
+        <div class="status-grid" id="bo7-status-grid">
+          <div class="sbtn" data-key="ci" onclick="selectStatus(this)">Em cirurgia</div>
+          <div class="sbtn" data-key="su" onclick="selectStatus(this)">Em sutura</div>
+          <div class="sbtn" data-key="re" onclick="selectStatus(this)">Aguarda recobro</div>
+          <div class="sbtn" data-key="li" onclick="selectStatus(this)">Limpeza infeciosa</div>
+          <div class="sbtn" data-key="ls" onclick="selectStatus(this)">Limpeza standard</div>
+          <div class="sbtn" data-key="ma" onclick="selectStatus(this)">Aguarda material</div>
+          <div class="sbtn full" data-key="lv" onclick="selectStatus(this)">✓ Bloco livre / pronto</div>
+          <div class="sbtn act-purple full" data-key="dp">Doente pronto para entrar</div>
+          <div class="sbtn full" data-key="at" onclick="navigate('subcategory')">Atraso não previsto</div>
+        </div>
+        <button class="confirm-btn" onclick="confirmStatusBO7()">Confirmar estado</button>
+        <button class="confirm-btn" style="background:#7c3aed;color:#fff;border-color:#7c3aed;margin-top:8px" onclick="callPatient()">Chamar doente para o bloco</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ SUBCATEGORY ═══ -->
+<div id="scr-subcategory" class="screen">
+<div class="det">
+  <div class="det-top">
+    <div class="back" onclick="navigate('bo-detail',{bo:6})">← BO 6</div>
+    <div class="det-title">Atraso não previsto</div>
+    <div class="tag" style="background:#0e7490">Registar</div>
+  </div>
+  <div style="padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:960px">
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Selecionar subcategoria (obrigatório)</div>
+        <div class="sub-grid" id="sub-grid">
+          <div class="sub-btn" onclick="selectSub(this)">Atraso da equipa</div>
+          <div class="sub-btn act" onclick="selectSub(this)">Complicação cirúrgica</div>
+          <div class="sub-btn" onclick="selectSub(this)">Equipa incompleta</div>
+          <div class="sub-btn" onclick="selectSub(this)">Equipamento falhou</div>
+          <div class="sub-btn" onclick="selectSub(this)">Doente instável</div>
+          <div class="sub-btn" onclick="selectSub(this)">Atraso na chegada do doente</div>
+          <div class="sub-btn full" onclick="selectSub(this)">Outro imprevisto</div>
+        </div>
+        <textarea class="form-input" style="margin-top:10px;min-height:70px;resize:vertical" placeholder="Observações (obrigatório para 'Outro imprevisto')..."></textarea>
+        <button class="confirm-btn" style="margin-top:10px;background:#0e7490;color:#fff;border-color:#0e7490" onclick="confirmSub()">Confirmar atraso</button>
+      </div>
+    </div>
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Resumo das subcategorias</div>
+        <ul class="sub-list">
+          <li><span class="sn">1</span> Atraso da equipa<br><span class="sd">Cirurgião, anestesista ou equipa de enfermagem</span></li>
+          <li><span class="sn">2</span> Complicação cirúrgica<br><span class="sd">Hemorragia, dificuldade técnica, achado inesperado</span></li>
+          <li><span class="sn">3</span> Equipa incompleta<br><span class="sd">Falta de elemento da equipa no início</span></li>
+          <li><span class="sn">4</span> Equipamento falhou<br><span class="sd">Avaria de equipamento durante ou antes da cirurgia</span></li>
+          <li><span class="sn">5</span> Doente instável<br><span class="sd">Instabilidade hemodinâmica ou intercorrência clínica</span></li>
+          <li><span class="sn">6</span> Atraso na chegada do doente<br><span class="sd">Doente chegou tarde à zona pré-operatória</span></li>
+          <li><span class="sn">7</span> Outro imprevisto<br><span class="sd">Registo livre obrigatório no campo de observação</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RECOVERY ROOM ═══ -->
+<div id="scr-recovery" class="screen">
+<div class="det">
+  <div class="rec-top">
+    <div class="back" onclick="navigate('dashboard')">← Dashboard</div>
+    <div class="det-title">Sala de recobro</div>
+    <div class="rec-badges">
+      <span class="rec-badge red" id="rec-occ-badge">10 ocupados</span>
+      <span class="rec-badge green" id="rec-free-badge">4 livres</span>
+      <span class="rec-badge amber" id="rec-pend-badge">2 alta pendente</span>
+    </div>
+  </div>
+  <div class="rec-body">
+    <div id="rec-alert" class="rec-alert" style="display:none"></div>
+    <div class="rec-layout">
+      <div>
+        <div class="bed-grid" id="bed-grid"></div>
+      </div>
+      <div id="bed-detail" class="rec-detail">
+        <div class="rec-detail-title">Selecione um lugar</div>
+        <p style="color:#94a3b8;font-size:13px;margin-top:8px">Clique num lugar para ver detalhes e ações disponíveis.</p>
+      </div>
+    </div>
+    <div class="wait-card" id="wait-card">
+      <div class="wait-title">Blocos aguardando vaga</div>
+      <div id="wait-list"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ MATERIAL ═══ -->
+<div id="scr-material" class="screen">
+<div class="det">
+  <div class="det-top">
+    <div class="back" onclick="navigate('dashboard')">← Dashboard</div>
+    <div class="det-title">Material e esterilização central</div>
+    <div style="font-size:12px;color:#64748b;font-weight:600">Atualizado 13:42</div>
+  </div>
+  <div class="mat-body">
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Kits cirúrgicos — stock disponível</div>
+        <table>
+          <thead><tr><th>Kit</th><th>Disponíveis</th><th>Total</th><th>Nível</th></tr></thead>
+          <tbody>
+            <tr><td>Laparoscopia</td><td style="font-weight:700">4</td><td style="color:#94a3b8">/ 5</td><td><div class="kit-bar"><div class="kit-fill ok" style="width:80%"></div></div></td></tr>
+            <tr><td>Ortopedia</td><td style="font-weight:700">2</td><td style="color:#94a3b8">/ 5</td><td><div class="kit-bar"><div class="kit-fill low" style="width:40%"></div></div></td></tr>
+            <tr><td>Geral</td><td style="font-weight:700">6</td><td style="color:#94a3b8">/ 10</td><td><div class="kit-bar"><div class="kit-fill ok" style="width:60%"></div></div></td></tr>
+            <tr><td>Cardiotorácico</td><td style="font-weight:700">1</td><td style="color:#94a3b8">/ 5</td><td><div class="kit-bar"><div class="kit-fill crit" style="width:20%"></div></div></td></tr>
+            <tr><td>Vascular</td><td style="font-weight:700">3</td><td style="color:#94a3b8">/ 4</td><td><div class="kit-bar"><div class="kit-fill ok" style="width:75%"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="det-card">
+        <div class="det-card-title">Gestão de kits — marcar estado</div>
+        <div id="kit-manage-list"></div>
+      </div>
+    </div>
+    <div>
+      <div class="det-card">
+        <div class="det-card-title">Pedidos urgentes recebidos</div>
+        <div id="urgent-requests"></div>
+        <button class="confirm-btn" style="margin-top:10px" onclick="addUrgentRequest()">+ Registar pedido manualmente</button>
+      </div>
+      <div class="det-card">
+        <div class="det-card-title">Central de esterilização</div>
+        <div class="steril-row"><span class="sl">Lotes em processo</span><span class="sv" id="mat-lotes">0</span></div>
+        <div class="steril-row"><span class="sl">Próxima saída</span><span class="sv">14:30</span></div>
+        <div class="steril-row"><span class="sl">Kits prontos / aguardam entrega</span><span class="sv" id="mat-prontos">0</span></div>
+        <div class="steril-row"><span class="sl">Ciclo médio de esterilização</span><span class="sv">1h 55m</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ ANALYSIS ═══ -->
+<div id="scr-analysis" class="screen">
+<div class="det">
+  <div class="det-top">
+    <div class="back" onclick="navigate('dashboard')">← Dashboard</div>
+    <div class="det-title">Análise operacional</div>
+    <div class="time-filter">
+      <div class="tf" onclick="setFilter(this,'hoje')">Hoje</div>
+      <div class="tf act" onclick="setFilter(this,'semana')">Esta semana</div>
+      <div class="tf" onclick="setFilter(this,'mes')">Este mês</div>
+    </div>
+  </div>
+  <div class="ana-body">
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-l">Taxa utilização blocos</div><div class="kpi-v" style="color:#0891b2">71%</div><div class="kpi-s">Meta: 75% · semana passada: 68%</div></div>
+      <div class="kpi"><div class="kpi-l">Atrasos por recobro</div><div class="kpi-v" style="color:#dc2626">12</div><div class="kpi-s">Impacto médio: 28 min</div></div>
+      <div class="kpi"><div class="kpi-l">Cirurgias canceladas</div><div class="kpi-v" style="color:#d97706">3</div><div class="kpi-s">Causa principal: recobro</div></div>
+    </div>
+    <div class="ana-grid">
+      <!-- Bar chart -->
+      <div class="ana-card">
+        <div class="ana-card-title">Causa de atraso · esta semana</div>
+        <div class="bar-chart-wrap" id="bar-chart-wrap"></div>
+      </div>
+      <!-- Phase bars -->
+      <div class="ana-card">
+        <div class="ana-card-title">Tempo médio por fase (min) · esta semana</div>
+        <div id="phase-bars"></div>
+      </div>
+      <!-- Occupancy -->
+      <div class="ana-card">
+        <div class="ana-card-title">Ocupação recobro por hora · padrão semanal</div>
+        <div class="occ-wrap" id="occ-chart"></div>
+      </div>
+      <!-- Cancel table -->
+      <div class="ana-card">
+        <div class="ana-card-title">Cancelamentos este mês · por causa</div>
+        <table class="cancel-table">
+          <thead><tr><th>Causa</th><th style="text-align:right">Total</th><th style="text-align:right">Impacto</th></tr></thead>
+          <tbody>
+            <tr><td>Recobro sem vaga</td><td style="text-align:right;font-weight:700">8</td><td style="text-align:right"><span class="impact high">Alto</span></td></tr>
+            <tr><td>Doente não compareceu</td><td style="text-align:right;font-weight:700">6</td><td style="text-align:right"><span class="impact ext">Externo</span></td></tr>
+            <tr><td>Material indisponível</td><td style="text-align:right;font-weight:700">4</td><td style="text-align:right"><span class="impact med">Médio</span></td></tr>
+            <tr><td>Limpeza não concluída</td><td style="text-align:right;font-weight:700">3</td><td style="text-align:right"><span class="impact med">Médio</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────
+const beds = [
+  {id:'R1',status:'occ',entry:'09:15',dest:'Internamento',surgery:'CIR-2026-0831',origin:'BO 1',admTime:'09:15',dischEst:'14:30'},
+  {id:'R2',status:'occ',entry:'10:02',dest:'Ambulatório',surgery:'CIR-2026-0833',origin:'BO 2',admTime:'10:02',dischEst:'14:00'},
+  {id:'R3',status:'occ',entry:'10:45',dest:'Internamento',surgery:'CIR-2026-0835',origin:'BO 3',admTime:'10:45',dischEst:'13:45'},
+  {id:'R4',status:'pend',entry:'Alta pendente',dest:'UCI',surgery:'CIR-2026-0837',origin:'BO 3',admTime:'09:50',dischEst:'13:30',pendMin:31,reason:'Aguarda cama'},
+  {id:'R5',status:'occ',entry:'11:10',dest:'Domicílio',surgery:'CIR-2026-0839',origin:'BO 5',admTime:'11:10',dischEst:'15:00'},
+  {id:'R6',status:'free',entry:'Desde 12:50',dest:'—',surgery:'—',origin:'—',admTime:'—',dischEst:'—'},
+  {id:'R7',status:'occ',entry:'11:30',dest:'UCI',surgery:'CIR-2026-0841',origin:'BO 7',admTime:'11:30',dischEst:'15:30'},
+  {id:'R8',status:'occ',entry:'12:00',dest:'Internamento',surgery:'CIR-2026-0843',origin:'BO 8',admTime:'12:00',dischEst:'14:45'},
+  {id:'R9',status:'pend',entry:'Alta pendente',dest:'Domicílio',surgery:'CIR-2026-0847',origin:'BO 3',admTime:'13:05',dischEst:'13:30',pendMin:22},
+  {id:'R10',status:'occ',entry:'12:20',dest:'Internamento',surgery:'CIR-2026-0849',origin:'BO 10',admTime:'12:20',dischEst:'15:00'},
+  {id:'R11',status:'free',entry:'Desde 13:10',dest:'—',surgery:'—',origin:'—',admTime:'—',dischEst:'—'},
+  {id:'R12',status:'free',entry:'Desde 13:05',dest:'—',surgery:'—',origin:'—',admTime:'—',dischEst:'—'},
+  {id:'R13',status:'occ',entry:'12:55',dest:'Ambulatório',surgery:'CIR-2026-0851',origin:'BO 1',admTime:'12:55',dischEst:'15:30'},
+  {id:'R14',status:'free',entry:'Desde 13:30',dest:'—',surgery:'—',origin:'—',admTime:'—',dischEst:'—'},
+  {id:'R15',status:'occ',entry:'13:20',dest:'Internamento',surgery:'CIR-2026-0853',origin:'BO 9',admTime:'13:20',dischEst:'16:00'},
+  {id:'R16',status:'occ',entry:'13:35',dest:'Internamento',surgery:'CIR-2026-0855',origin:'BO 11',admTime:'13:35',dischEst:'16:30'},
+];
+let selBed = null;
+let currentBo = 2;
+const waitingBOs = [
+  {bo:'BO 3', detail:'Aguarda 18 min · infecioso'}
+];
+
+// ─── BO STATES (live, updated on confirmStatus) ───────────────
+const boStates = [
+  {bo:1, cls:'ci', label:'Em cirurgia',       sub:'45 min restantes',          bar:62, nav:()=>navigate('bo-detail',{bo:1})},
+  {bo:2, cls:'su', label:'Em sutura',          sub:'Próximo doente: pronto',    bar:90, nav:()=>navigate('bo-detail',{bo:2})},
+  {bo:3, cls:'re', label:'Aguarda recobro',    sub:'Bloqueado há 18 min',       bar:0,  nav:()=>navigate('bo-detail',{bo:3})},
+  {bo:4, cls:'ci', label:'Em cirurgia',        sub:'2h 05m restantes',          bar:18, nav:()=>navigate('bo-detail',{bo:4})},
+  {bo:5, cls:'li', label:'Limpeza infeciosa',  sub:'35 min · meta 40 min',      bar:88, nav:()=>navigate('bo-detail',{bo:5})},
+  {bo:6, cls:'at', label:'Atraso não previsto',sub:'Complicação · 22 min',      bar:0,  nav:()=>navigate('bo-detail',{bo:6})},
+  {bo:7, cls:'dp', label:'Doente pronto',      sub:'CIR-0855 · aguarda chamada',bar:0,  nav:()=>navigate('bo7')},
+  {bo:8, cls:'ls', label:'Limpeza standard',   sub:'12 min · meta 15 min',      bar:80, nav:()=>navigate('bo-detail',{bo:8})},
+  {bo:9, cls:'ci', label:'Em cirurgia',        sub:'55 min restantes',          bar:48, nav:()=>navigate('bo-detail',{bo:9})},
+  {bo:10,cls:'ma', label:'Aguarda material',   sub:'Esterilização pendente',    bar:0,  nav:()=>navigate('bo-detail',{bo:10})},
+  {bo:11,cls:'su', label:'Em sutura',          sub:'Próximo: a preparar',       bar:70, nav:()=>navigate('bo-detail',{bo:11})},
+  {bo:0, cls:'lv', label:'Livre / encerrado',  sub:'Última: 12:40',             bar:100,nav:null},
+];
+const statusMeta = {
+  ci:{cls:'ci', label:'Em cirurgia',        sub:'Em cirurgia'},
+  su:{cls:'su', label:'Em sutura',          sub:'Em sutura / encerramento'},
+  re:{cls:'re', label:'Aguarda recobro',    sub:'Aguarda recobro'},
+  li:{cls:'li', label:'Limpeza infeciosa',  sub:'Limpeza infeciosa'},
+  ls:{cls:'ls', label:'Limpeza standard',   sub:'Limpeza standard'},
+  ma:{cls:'ma', label:'Aguarda material',   sub:'Aguarda material'},
+  lv:{cls:'lv', label:'Bloco livre / pronto',sub:'Bloco livre / pronto'},
+  at:{cls:'at', label:'Atraso não previsto',sub:'Atraso não previsto'},
+  dp:{cls:'dp', label:'Doente pronto',      sub:'Doente pronto'},
+};
+
+function renderDashBOs(){
+  const grid=document.getElementById('dash-bo-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  boStates.forEach(b=>{
+    const div=document.createElement('div');
+    div.className='bk '+b.cls;
+    div.innerHTML=`<div class="bn">BO ${b.bo||'—'}</div><div class="bs">${b.label}</div><div class="bd">${b.sub}</div><div class="bpw"><div class="bp" style="width:${b.bar}%"></div></div>`;
+    if(b.nav) div.onclick=b.nav;
+    grid.appendChild(div);
+  });
+}
+
+// ─── URGENT REQUESTS STATE ────────────────────────────────────
+const urgentRequests = [
+  {id:'urg-1', kit:'Kit Cardio', bo:'BO 10', level:'urg',   tag:'Urgente', sub:'Bloqueado há 45 min'},
+  {id:'urg-2', kit:'Kit Ortopedia', bo:'BO 6', level:'alert', tag:'Alerta', sub:'Previsto para 15:00'},
+];
+function renderUrgentRequests(){
+  const wrap=document.getElementById('urgent-requests');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  if(urgentRequests.length===0){
+    wrap.innerHTML='<p style="color:#94a3b8;font-size:13px;padding:8px 0">Sem pedidos pendentes.</p>';
+    return;
+  }
+  urgentRequests.forEach(r=>{
+    const div=document.createElement('div');
+    div.className='urg-item '+r.level;
+    div.id=r.id;
+    div.innerHTML=`
+      <div class="ui-top">
+        <span class="ui-name">${r.kit} · ${r.bo}</span>
+        <span class="ui-tag">${r.tag}</span>
+      </div>
+      <div class="ui-sub">${r.sub}</div>
+      <button class="kit-btn-sm sent" style="margin-top:8px;width:100%" onclick="deliverUrgent('${r.id}','${r.kit}','${r.bo}')">Entregar ao bloco →</button>`;
+    wrap.appendChild(div);
+  });
+}
+function deliverUrgent(id, kit, bo){
+  const idx=urgentRequests.findIndex(r=>r.id===id);
+  if(idx!==-1) urgentRequests.splice(idx,1);
+  renderUrgentRequests();
+  // If BO was waiting for material, update its dashboard card
+  const boNum=parseInt(bo.replace('BO ',''));
+  const state=boStates.find(s=>s.bo===boNum);
+  if(state && state.cls==='ma'){
+    state.cls='lv'; state.label='Bloco livre / pronto'; state.sub='Material entregue'; state.bar=0;
+    renderDashBOs();
+  }
+  showToast('✓ '+kit+' entregue a '+bo+'. Pedido removido.');
+}
+let selectedKits = [];
+let selectedUrgency = 'Urgente';
+
+// ─── NAVIGATION ───────────────────────────────────────────────
+function navigate(screen, data){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const map={
+    'dashboard':'scr-dashboard','bo-detail':'scr-bo-detail','bo7':'scr-bo7',
+    'subcategory':'scr-subcategory','recovery':'scr-recovery',
+    'material':'scr-material','analysis':'scr-analysis'
+  };
+  const el=document.getElementById(map[screen]);
+  if(el) el.classList.add('active');
+  if(screen==='bo-detail' && data) { currentBo=data.bo; setupBoDetail(data.bo); }
+  if(screen==='recovery') { selBed=null; renderBeds(); updateRecBadges(); updateDashRecGrid(); renderWaitList(); }
+  if(screen==='dashboard') { updateDashRecGrid(); }
+  if(screen==='material') { renderUrgentRequests(); renderKitManage(); }
+  if(screen==='bo7') { currentBo=7; }
+  if(screen==='analysis') { setTimeout(buildCharts,50); }
+}
+
+// ─── CLOCK ───────────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,'0');
+  const m=String(now.getMinutes()).padStart(2,'0');
+  const el=document.getElementById('clk');
+  if(el) el.textContent=h+':'+m;
+}
+setInterval(updateClock,10000);
+updateClock();
+
+// ─── BO DETAIL ───────────────────────────────────────────────
+const boData = {
+  1:{name:'Bloco Operatório 1 · Cirurgia Geral',tag:'Em cirurgia',tagCls:'teal',fase:'Em cirurgia',faseCls:'teal',info:'Cirurgia em curso. 45 min estimados. Próximo doente em preparação.',infoCls:'teal',activeKey:'ci',cod:'CIR-2026-0840',inicio:'10:15',prev:'~14:30',nextCir:'CIR-2026-0860',nextPt:'Em preparação'},
+  2:{name:'Bloco Operatório 2 · Laparoscopia',tag:'Em sutura',tagCls:'teal',fase:'Em sutura / encerramento',faseCls:'teal',info:'Ao marcar <strong>Em sutura</strong>, o sistema notifica automaticamente a equipa de enfermagem.',infoCls:'teal',activeKey:'su',cod:'CIR-2026-0848',inicio:'11:00',prev:'~13:55',nextCir:'CIR-2026-0862',nextPt:'Pronto · aguarda chamada'},
+  3:{name:'Bloco Operatório 3 · Cirurgia Geral',tag:'Aguarda recobro',tagCls:'orange',fase:'Aguarda recobro',faseCls:'orange',info:'Bloco bloqueado há 18 minutos. Aguarda vaga no recobro.',infoCls:'orange',activeKey:'re',cod:'CIR-2026-0844',inicio:'09:30',prev:'—',nextCir:'CIR-2026-0858',nextPt:'Aguarda bloco'},
+  4:{name:'Bloco Operatório 4 · Neurocirurgia',tag:'Em cirurgia',tagCls:'teal',fase:'Em cirurgia',faseCls:'teal',info:'Cirurgia de longa duração. Previsão de conclusão em 2h 05m.',infoCls:'teal',activeKey:'ci',cod:'CIR-2026-0845',inicio:'11:40',prev:'~16:00',nextCir:'CIR-2026-0863',nextPt:'Não confirmado'},
+  5:{name:'Bloco Operatório 5 · Infecioso',tag:'Limpeza infeciosa',tagCls:'orange',fase:'Limpeza infeciosa',faseCls:'orange',info:'Protocolo de limpeza infeciosa em curso. Duração estimada 40 min.',infoCls:'orange',activeKey:'li',cod:'CIR-2026-0846',inicio:'10:00',prev:'—',nextCir:'—',nextPt:'—'},
+  6:{name:'Bloco Operatório 6 · Cirurgia Vascular',tag:'Atraso não previsto',tagCls:'',fase:'Atraso não previsto',faseCls:'',info:'Complicação registada há 22 minutos. Selecione a subcategoria para classificar o atraso.',infoCls:'orange',activeKey:'at',cod:'CIR-2026-0847',inicio:'12:00',prev:'—',nextCir:'CIR-2026-0864',nextPt:'Aguarda'},
+  8:{name:'Bloco Operatório 8 · Ortopedia',tag:'Limpeza standard',tagCls:'teal',fase:'Limpeza standard',faseCls:'teal',info:'Limpeza em curso — 12 min de 15 min previstos.',infoCls:'teal',activeKey:'ls',cod:'CIR-2026-0848',inicio:'11:00',prev:'~13:55',nextCir:'CIR-2026-0862',nextPt:'Pronto · aguarda chamada'},
+  9:{name:'Bloco Operatório 9 · Cirurgia Geral',tag:'Em cirurgia',tagCls:'teal',fase:'Em cirurgia',faseCls:'teal',info:'Cirurgia em curso. 55 min estimados para conclusão.',infoCls:'teal',activeKey:'ci',cod:'CIR-2026-0849',inicio:'12:00',prev:'~15:00',nextCir:'CIR-2026-0865',nextPt:'A preparar'},
+  10:{name:'Bloco Operatório 10 · Cardiotorácico',tag:'Aguarda material',tagCls:'',fase:'Aguarda material',faseCls:'',info:'Kits de esterilização pendentes. Contacte a central de esterilização.',infoCls:'orange',activeKey:'ma',cod:'CIR-2026-0850',inicio:'12:30',prev:'—',nextCir:'—',nextPt:'—'},
+  11:{name:'Bloco Operatório 11 · Cirurgia Geral',tag:'Em sutura',tagCls:'teal',fase:'Em sutura / encerramento',faseCls:'teal',info:'Fase de encerramento. Próximo doente a ser preparado.',infoCls:'teal',activeKey:'su',cod:'CIR-2026-0851',inicio:'13:00',prev:'~14:30',nextCir:'CIR-2026-0869',nextPt:'A preparar'},
+};
+function setupBoDetail(bo){
+  const d=boData[bo]||boData[2];
+  document.getElementById('bo-title').textContent=d.name;
+  const tag=document.getElementById('bo-tag');
+  tag.textContent=d.tag;
+  tag.className='tag '+(d.tagCls||'');
+  if(!d.tagCls) tag.style.cssText='background:#0e7490;color:#fff';
+  else tag.style.cssText='';
+  document.getElementById('bo-cod').textContent=d.cod;
+  document.getElementById('bo-inicio').textContent=d.inicio;
+  const fase=document.getElementById('bo-fase');
+  fase.textContent=d.fase;
+  fase.className='dr-v '+(d.faseCls||'');
+  document.getElementById('bo-prev').textContent=d.prev;
+  document.getElementById('bo-next-cir').textContent=d.nextCir;
+  const np=document.getElementById('bo-next-pt');
+  np.textContent=d.nextPt;
+  np.className='dr-v '+(d.nextPt.includes('Pronto')?'orange':'');
+  document.getElementById('bo-info').innerHTML=d.info;
+  document.getElementById('bo-info').className='info-box '+(d.infoCls||'teal');
+  // Mark active status button
+  document.querySelectorAll('#status-grid .sbtn').forEach(b=>{
+    const key=b.dataset.key;
+    b.className=b.classList.contains('full')?'sbtn full':'sbtn';
+    if(key===d.activeKey) b.classList.add(key==='lv'?'act-green':key==='re'||key==='li'||key==='ma'?'act-orange':'act-teal');
+  });
+  // Reset kit request
+  selectedKits=[];
+  document.querySelectorAll('#kit-req-grid .kit-req-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('kit-urgency').style.display='none';
+  document.getElementById('kit-req-confirm').style.display='none';
+}
+
+// ─── STATUS BUTTONS ───────────────────────────────────────────
+function selectStatus(el){
+  const grid=el.closest('.status-grid');
+  if(!grid) return;
+  grid.querySelectorAll('.sbtn').forEach(b=>{
+    b.className=b.classList.contains('full')?'sbtn full':'sbtn';
+  });
+  const key=el.dataset.key;
+  if(key==='lv') el.classList.add('act-green');
+  else if(['re','li','ma'].includes(key)) el.classList.add('act-orange');
+  else el.classList.add('act-teal');
+}
+function confirmStatus(){
+  const active=document.querySelector('#status-grid .sbtn.act-teal,#status-grid .sbtn.act-green,#status-grid .sbtn.act-orange');
+  const key=active?active.dataset.key:null;
+  const txt=active?active.textContent.replace('✓ ',''):'o estado selecionado';
+  if(key && statusMeta[key]){
+    const meta=statusMeta[key];
+    const state=boStates.find(s=>s.bo===currentBo);
+    if(state){
+      state.cls=meta.cls;
+      state.label=meta.label;
+      state.sub=meta.sub;
+      state.bar=0;
+      // Update boData tag/fase too so re-entering the detail looks right
+      if(boData[currentBo]){
+        boData[currentBo].activeKey=key;
+        boData[currentBo].fase=meta.sub;
+        boData[currentBo].faseCls=['ci','su','lv'].includes(key)?'teal':['re','li','ma'].includes(key)?'orange':'';
+        boData[currentBo].tag=meta.label;
+        boData[currentBo].tagCls=['ci','su','lv'].includes(key)?'teal':['re','li','ma'].includes(key)?'orange':'';
+      }
+    }
+    renderDashBOs();
+  }
+  showToast('✓ Estado "'+txt+'" confirmado! Equipa notificada.');
+}
+function callPatient(){ showToast('✓ Doente chamado para BO 7! Enfermagem notificada.'); }
+function confirmStatusBO7(){
+  // reuse the same confirm logic with bo7-status-grid
+  const active=document.querySelector('#bo7-status-grid .sbtn.act-teal,#bo7-status-grid .sbtn.act-green,#bo7-status-grid .sbtn.act-orange');
+  const key=active?active.dataset.key:null;
+  const txt=active?active.textContent.replace('✓ ',''):'o estado selecionado';
+  if(key && statusMeta[key]){
+    const meta=statusMeta[key];
+    const state=boStates.find(s=>s.bo===7);
+    if(state){ state.cls=meta.cls; state.label=meta.label; state.sub=meta.sub; state.bar=0; }
+    renderDashBOs();
+  }
+  showToast('✓ Estado "'+txt+'" confirmado! Equipa notificada.');
+}
+
+// ─── SUBCATEGORY ──────────────────────────────────────────────
+function selectSub(el){
+  document.getElementById('sub-grid').querySelectorAll('.sub-btn').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+}
+function confirmSub(){ showToast('✓ Atraso registado. Back-office notificado.'); navigate('dashboard'); }
+
+// ─── KIT REQUEST ──────────────────────────────────────────────
+function toggleKitReq(el, name){
+  el.classList.toggle('sel');
+  if(el.classList.contains('sel')) selectedKits.push(name);
+  else selectedKits=selectedKits.filter(k=>k!==name);
+  document.getElementById('kit-urgency').style.display=selectedKits.length>0?'block':'none';
+}
+function selectUrgency(el, val){
+  selectedUrgency=val;
+  el.closest('.status-grid')||el.parentElement;
+  document.querySelectorAll('#kit-urgency .sbtn').forEach(b=>b.className='sbtn');
+  el.classList.add(val==='Urgente'?'act-orange':'act-teal');
+}
+function sendKitRequest(){
+  if(selectedKits.length===0){ showToast('Selecione pelo menos um kit.'); return; }
+  const kitsSnap=[...selectedKits];
+  const urgSnap=selectedUrgency;
+  const conf=document.getElementById('kit-req-confirm');
+  conf.style.display='block';
+  conf.textContent='✓ Pedido enviado: '+kitsSnap.join(', ')+' ['+urgSnap+'] — Central de esterilização notificada.';
+  // Push to urgentRequests array so it appears in material screen
+  const id='urg-'+Date.now();
+  urgentRequests.push({
+    id, kit:'Kit '+kitsSnap.join('+'), bo:'BO '+currentBo,
+    level: urgSnap==='Urgente'?'urg':'alert',
+    tag: urgSnap, sub:'Pedido agora · BO '+currentBo
+  });
+  selectedKits=[];
+  document.querySelectorAll('#kit-req-grid .kit-req-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('kit-urgency').style.display='none';
+}
+
+// ─── RECOVERY ROOM ────────────────────────────────────────────
+function recStats(){
+  return {
+    occ: beds.filter(b=>b.status==='occ').length,
+    free: beds.filter(b=>b.status==='free').length,
+    pend: beds.filter(b=>b.status==='pend').length
+  };
+}
+function updateRecBadges(){
+  const s=recStats();
+  const ob=document.getElementById('rec-occ-badge');
+  const fb=document.getElementById('rec-free-badge');
+  const pb=document.getElementById('rec-pend-badge');
+  if(ob) ob.textContent=s.occ+' ocupados';
+  if(fb) fb.textContent=s.free+' livres';
+  if(pb) pb.textContent=s.pend+' alta pendente';
+}
+function updateDashRecGrid(){
+  const grid=document.getElementById('dash-rec-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  const s=recStats();
+  beds.forEach(b=>{
+    const d=document.createElement('div');
+    const cls=b.status==='occ'?'oc':b.status==='free'?'fr':'al';
+    d.className='rs '+cls;
+    d.innerHTML=`<div class="rn">${b.id}</div><div class="rl">${b.status==='occ'?'Ocup.':b.status==='free'?'Livre':'Alta p.'}</div>`;
+    d.onclick=()=>navigate('recovery');
+    grid.appendChild(d);
+  });
+  const ov=document.getElementById('dash-rec-kv');
+  const os=document.getElementById('dash-rec-ks');
+  const rb=document.getElementById('dash-rec-badge');
+  const oll=document.getElementById('dash-occ-lbl');
+  const fll=document.getElementById('dash-free-lbl');
+  const pll=document.getElementById('dash-pend-lbl');
+  if(ov) ov.innerHTML=s.occ+'<span>/'+beds.length+'</span>';
+  if(os) os.textContent=s.free+' livres · '+s.pend+' alta pend.';
+  if(rb) rb.textContent='Recobro: '+s.free+' livres';
+  if(oll) oll.textContent='Ocup. ('+s.occ+')';
+  if(fll) fll.textContent='Livre ('+s.free+')';
+  if(pll) pll.textContent='Alta p. ('+s.pend+')';
+}
+
+function renderBeds(){
+  const grid=document.getElementById('bed-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  beds.forEach(bed=>{
+    const div=document.createElement('div');
+    let cls='bed ';
+    cls += bed.status==='occ'?'occ':bed.status==='free'?'free':'pend';
+    if(selBed===bed.id) cls+=' sel';
+    div.className=cls;
+    let body='';
+    if(bed.status==='occ'){
+      body=`<div class="bs">Ocupado</div><div class="bd">${bed.entry}</div><div class="be">${bed.dest}</div>`;
+    } else if(bed.status==='free'){
+      body=`<div class="bs">Livre</div><div class="bd">${bed.entry}</div><div class="be">—</div>`;
+    } else {
+      body=`<div class="bs">Alta pendente</div><div class="bd">Alta pendente</div><div class="be">Pend. ${bed.pendMin} min</div>`;
+    }
+    div.innerHTML=`<div class="bn">${bed.id}</div>${body}`;
+    div.onclick=()=>selectBed(bed.id);
+    grid.appendChild(div);
+  });
+  updateRecBadges();
+  updateDashRecGrid();
+}
+
+function selectBed(id){
+  selBed=id;
+  const bed=beds.find(b=>b.id===id);
+  const alertEl=document.getElementById('rec-alert');
+  if(bed.status==='pend'){
+    alertEl.style.display='block';
+    alertEl.textContent=`${id} selecionado — alta pendente há ${bed.pendMin} min. Clique em "Dar alta" para libertar o lugar.`;
+  } else { alertEl.style.display='none'; }
+
+  const det=document.getElementById('bed-detail');
+  if(bed.status==='free'){
+    det.innerHTML=`
+      <div class="rec-detail-title">${id} · Livre</div>
+      <div class="det-row"><span class="dr-l">Estado</span><span class="dr-v green">Livre</span></div>
+      <div class="det-row"><span class="dr-l">Disponível desde</span><span class="dr-v">${bed.entry.replace('Desde ','')}</span></div>
+      <div class="det-row"><span class="dr-l">Monitor ${id}</span><span class="dr-v green">Operacional</span></div>
+      <div style="margin-top:14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:8px">ADMITIR DOENTE</div>
+      <div class="admit-form">
+        <div class="form-group">
+          <label class="form-label">Código cirurgia</label>
+          <input class="form-input" type="text" id="admit-cod-${id}" placeholder="CIR-2026-XXXX">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bloco origem</label>
+          <select class="form-select" id="admit-bo-${id}">
+            <option value="">Selecionar BO...</option>
+            ${[1,2,3,4,5,6,7,8,9,10,11].map(n=>`<option>BO ${n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Destino após recobro</label>
+          <select class="form-select" id="admit-dest-${id}">
+            <option>Internamento</option>
+            <option>Ambulatório</option>
+            <option>Domicílio</option>
+            <option>UCI</option>
+          </select>
+        </div>
+        <button class="rec-act-btn green" onclick="admitPatient('${id}')">✓ Admitir doente em ${id}</button>
+      </div>`;
+  } else {
+    let actions='';
+    if(bed.status==='occ'){
+      actions=`<button class="rec-act-btn amber" onclick="markPending('${id}')">⚑ Marcar alta pendente</button>`;
+    } else {
+      actions=`
+        <button class="rec-act-btn primary" onclick="dischargeBed('${id}')">✓ Dar alta · libertar ${id}</button>
+        <button class="rec-act-btn" onclick="delayBed('${id}')">Adiar alta 30 min</button>`;
+    }
+    det.innerHTML=`
+      <div class="rec-detail-title">${id} · Detalhe</div>
+      <div class="det-row"><span class="dr-l">Cirurgia</span><span class="dr-v">${bed.surgery}</span></div>
+      <div class="det-row"><span class="dr-l">Bloco origem</span><span class="dr-v">${bed.origin}</span></div>
+      <div class="det-row"><span class="dr-l">Entrada recobro</span><span class="dr-v">${bed.admTime}</span></div>
+      <div class="det-row"><span class="dr-l">Alta prevista</span><span class="dr-v">${bed.dischEst}</span></div>
+      ${bed.status==='pend'?`<div class="det-row"><span class="dr-l">Alta pendente</span><span class="dr-v orange">${bed.pendMin} min</span></div>`:''}
+      <div class="det-row"><span class="dr-l">Destino</span><span class="dr-v">${bed.dest}</span></div>
+      <div class="det-row"><span class="dr-l">Monitor ${id}</span><span class="dr-v green">Operacional</span></div>
+      <div style="margin-top:12px">${actions}</div>`;
+  }
+  renderBeds();
+}
+
+function renderWaitList(){
+  const list=document.getElementById('wait-list');
+  const card=document.getElementById('wait-card');
+  if(!list||!card) return;
+  list.innerHTML='';
+  if(waitingBOs.length===0){
+    card.style.display='none';
+  } else {
+    card.style.display='block';
+    waitingBOs.forEach(w=>{
+      const item=document.createElement('div');
+      item.className='wait-item';
+      item.innerHTML=`<div class="wi-bo">${w.bo}</div><div class="wi-d">${w.detail}</div>`;
+      list.appendChild(item);
+    });
+  }
+}
+
+function admitPatient(id){
+  const cod=document.getElementById('admit-cod-'+id)?.value||'CIR-2026-XXXX';
+  const bo=document.getElementById('admit-bo-'+id)?.value||'BO ?';
+  const dest=document.getElementById('admit-dest-'+id)?.value||'Internamento';
+  if(!bo||bo==='Selecionar BO...'){showToast('Selecione o bloco de origem.');return;}
+  const now=new Date();
+  const t=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const bed=beds.find(b=>b.id===id);
+  bed.status='occ';
+  bed.surgery=cod||'CIR-2026-XXXX';
+  bed.origin=bo;
+  bed.dest=dest;
+  bed.entry=t;
+  bed.admTime=t;
+  const dischH=now.getHours()+2;
+  bed.dischEst=(dischH>23?dischH-24:dischH)+':'+String(now.getMinutes()).padStart(2,'0');
+  // Remove from waiting list if this BO was waiting
+  const idx=waitingBOs.findIndex(w=>w.bo===bo);
+  if(idx!==-1){ waitingBOs.splice(idx,1); renderWaitList(); }
+  selBed=id;
+  renderBeds();
+  selectBed(id);
+  showToast('✓ Doente admitido em '+id+(idx!==-1?' · '+bo+' removido da lista de espera':'')+'.'); 
+}
+function markPending(id){
+  const bed=beds.find(b=>b.id===id);
+  if(bed){ bed.status='pend'; bed.pendMin=0; }
+  selBed=id;
+  renderBeds();
+  selectBed(id);
+  showToast('⚑ '+id+' marcado com alta pendente.');
+}
+function dischargeBed(id){
+  const bed=beds.find(b=>b.id===id);
+  const now=new Date();
+  const t=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  bed.status='free'; bed.entry='Desde '+t; bed.pendMin=0;
+  bed.surgery='—'; bed.origin='—'; bed.dest='—'; bed.admTime='—'; bed.dischEst='—';
+  selBed=null;
+  document.getElementById('rec-alert').style.display='none';
+  document.getElementById('bed-detail').innerHTML=`<div class="rec-detail-title">Alta confirmada</div><p style="color:#15803d;font-size:13px;margin-top:8px;font-weight:600">✓ ${id} agora livre. Equipa notificada.</p>`;
+  renderBeds();
+  showToast('✓ Alta dada em '+id+'. Lugar libertado.');
+}
+function delayBed(id){
+  const bed=beds.find(b=>b.id===id);
+  if(bed) bed.pendMin=(bed.pendMin||0)+30;
+  selectBed(id);
+}
+
+// ─── KIT ITEMS STATE ─────────────────────────────────────────
+const kitItems = [
+  {id:'k1', name:'Ortopedia 4', sub:'Esterilização · entrada 12:10', state:'steril'},
+  {id:'k2', name:'Cardio 1',    sub:'Esterilização · entrada 11:00', state:'steril'},
+  {id:'k3', name:'Laparoscopia 2', sub:'Em uso · BO 1 desde 08:30', state:'uso'},
+  {id:'k4', name:'Ortopedia 3',    sub:'Em uso · BO 4 desde 09:00', state:'uso'},
+];
+function updateSterilCounts(){
+  const lotes=kitItems.filter(k=>k.state==='steril').length;
+  const prontos=kitItems.filter(k=>k.state==='ready').length;
+  const el1=document.getElementById('mat-lotes');
+  const el2=document.getElementById('mat-prontos');
+  if(el1) el1.textContent=lotes;
+  if(el2) el2.textContent=prontos;
+}
+function renderKitManage(){
+  const wrap=document.getElementById('kit-manage-list');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  kitItems.forEach(k=>{
+    if(k.state==='delivered') return; // hide delivered
+    const row=document.createElement('div');
+    row.className='kit-manage-row';
+    let tagHtml='', btnHtml='';
+    if(k.state==='steril'){
+      tagHtml=`<span class="kit-tag steril">Em esteril.</span>`;
+      btnHtml=`<button class="kit-btn-sm ready" onclick="markKitReady('${k.id}')">Marcar pronto</button>`;
+    } else if(k.state==='ready'){
+      tagHtml=`<span class="kit-tag ready">Pronto</span>`;
+      btnHtml=`<button class="kit-btn-sm sent" onclick="markKitSend('${k.id}')">Enviar ao bloco</button>`;
+    } else if(k.state==='uso'){
+      tagHtml=`<span class="kit-tag uso">Em uso</span>`;
+      btnHtml=`<button class="kit-btn-sm sent" onclick="markKitReturn('${k.id}')">Registar retorno</button>`;
+    }
+    row.innerHTML=`<div class="kit-manage-info"><div class="kit-manage-name">${k.name}</div><div class="kit-manage-sub">${k.sub}</div></div>${tagHtml}${btnHtml}`;
+    wrap.appendChild(row);
+  });
+  updateSterilCounts();
+}
+function markKitReady(id){
+  const k=kitItems.find(i=>i.id===id);
+  if(k){ k.state='ready'; }
+  renderKitManage();
+  showToast('✓ '+k.name+' marcado como pronto.');
+}
+function markKitSend(id){
+  const k=kitItems.find(i=>i.id===id);
+  if(k){ k.state='delivered'; }
+  renderKitManage();
+  showToast('✓ '+k.name+' enviado ao bloco.');
+}
+function markKitReturn(id){
+  const k=kitItems.find(i=>i.id===id);
+  if(k){ k.state='steril'; k.sub='Esterilização · entrada agora'; }
+  renderKitManage();
+  showToast('✓ Retorno de '+k.name+' registado. Enviado para esterilização.');
+}
+function addUrgentRequest(){
+  const kit=prompt('Nome do kit:','Kit Geral');
+  const bo=prompt('Bloco operatório:','BO 5');
+  if(kit&&bo){
+    const id='urg-'+Date.now();
+    urgentRequests.push({id, kit, bo, level:'alert', tag:'Alerta', sub:'Registado agora'});
+    renderUrgentRequests();
+    showToast('✓ Pedido registado.');
+  }
+}
+
+// ─── ANALYSIS CHARTS ─────────────────────────────────────────
+function buildCharts(){
+  buildBarChart();
+  buildPhaseBars();
+  buildOccChart();
+}
+function buildBarChart(){
+  const wrap=document.getElementById('bar-chart-wrap');
+  if(!wrap) return;
+  const data=[
+    {v:12,lbl:'Recobro c.',color:'#fca5a5'},
+    {v:7, lbl:'Limpeza i.',color:'#fdba74'},
+    {v:5, lbl:'Material',color:'#fde68a'},
+    {v:3, lbl:'Transferê.',color:'#a5b4fc'},
+    {v:2, lbl:'Outros',color:'#d1d5db'},
+  ];
+  const max=Math.max(...data.map(d=>d.v));
+  const chartH=90; // px for tallest bar
+  wrap.innerHTML='';
+  data.forEach(d=>{
+    const pct=(d.v/max)*chartH;
+    const col=document.createElement('div');
+    col.className='bar-col';
+    col.innerHTML=`
+      <div class="bv">${d.v}</div>
+      <div class="bf" style="height:${pct}px;background:${d.color}"></div>
+      <div class="bl">${d.lbl}</div>`;
+    wrap.appendChild(col);
+  });
+}
+function buildPhaseBars(){
+  const wrap=document.getElementById('phase-bars');
+  if(!wrap) return;
+  const data=[
+    {lbl:'Cirurgia (duração real)',v:108,max:108,color:'#3b82f6'},
+    {lbl:'Fim cir. → recobro',v:14,max:108,color:'#dc2626'},
+    {lbl:'Permanência recobro',v:82,max:108,color:'#78716c'},
+    {lbl:'Limpeza standard',v:17,max:108,color:'#854d0e'},
+    {lbl:'Limpeza infeciosa',v:48,max:108,color:'#991b1b'},
+  ];
+  wrap.innerHTML='';
+  data.forEach(d=>{
+    const pct=Math.round((d.v/d.max)*100);
+    const row=document.createElement('div');
+    row.className='phase-row';
+    row.innerHTML=`<span class="pl">${d.lbl}</span><div class="pb"><div class="pf2" style="width:${pct}%;background:${d.color}"></div></div><span class="pv">${d.v}</span>`;
+    wrap.appendChild(row);
+  });
+}
+function buildOccChart(){
+  const wrap=document.getElementById('occ-chart');
+  if(!wrap) return;
+  const data=[
+    {h:'7h',pct:30},{h:'8h',pct:45},{h:'9h',pct:62},{h:'10h',pct:78},
+    {h:'11h',pct:88},{h:'12h',pct:95},{h:'13h',pct:100},{h:'14h',pct:90},
+    {h:'15h',pct:95},{h:'16h',pct:75},{h:'17h',pct:50}
+  ];
+  const maxH=80; // px
+  wrap.innerHTML='';
+  const colors=['#bbf7d0','#86efac','#4ade80','#22c55e','#16a34a','#15803d','#166534','#14532d','#15803d','#16a34a','#4ade80'];
+  data.forEach((d,i)=>{
+    const col=document.createElement('div');
+    col.className='occ-col';
+    const h=Math.round((d.pct/100)*maxH);
+    col.innerHTML=`<div class="occ-bar" style="height:${h}px;background:${colors[i]}"></div><div class="occ-lbl">${d.h}</div>`;
+    wrap.appendChild(col);
+  });
+}
+function setFilter(el,f){
+  document.querySelectorAll('.tf').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='toast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  t.style.opacity='1';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.style.opacity='0',2800);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+updateDashRecGrid();
+renderWaitList();
+renderDashBOs();
+renderUrgentRequests();
+renderKitManage();
+</script>
+</body>
+</html>
